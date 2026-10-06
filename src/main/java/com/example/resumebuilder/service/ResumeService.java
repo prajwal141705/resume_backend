@@ -28,12 +28,22 @@ public class ResumeService {
         Resume resume = Resume.builder()
                 .userId(currentUserId)
                 .title(request.getTitle())
+                .template(request.getTemplate() != null ? request.getTemplate() : "modern")
                 .personalInfo(request.getPersonalInfo())
                 .summary(request.getSummary())
+                .careerObjective(request.getCareerObjective())
                 .education(request.getEducation() != null ? request.getEducation() : new ArrayList<>())
                 .experience(request.getExperience() != null ? request.getExperience() : new ArrayList<>())
+                .internships(request.getInternships() != null ? request.getInternships() : new ArrayList<>())
                 .projects(request.getProjects() != null ? request.getProjects() : new ArrayList<>())
                 .skills(request.getSkills() != null ? request.getSkills() : new ArrayList<>())
+                .technicalSkills(request.getTechnicalSkills() != null ? request.getTechnicalSkills() : new ArrayList<>())
+                .certifications(request.getCertifications() != null ? request.getCertifications() : new ArrayList<>())
+                .achievements(request.getAchievements() != null ? request.getAchievements() : new ArrayList<>())
+                .languages(request.getLanguages() != null ? request.getLanguages() : new ArrayList<>())
+                .hobbies(request.getHobbies() != null ? request.getHobbies() : new ArrayList<>())
+                .customSections(request.getCustomSections() != null ? request.getCustomSections() : new ArrayList<>())
+                .status(request.getStatus() != null ? request.getStatus() : "ACTIVE")
                 .createdAt(Instant.now())
                 .updatedAt(Instant.now())
                 .build();
@@ -49,7 +59,7 @@ public class ResumeService {
             throw new ForbiddenException("Access denied: You can only view your own resumes");
         }
 
-        return resumeRepository.findByUserId(targetUserId).stream()
+        return resumeRepository.findByUserIdOrderByUpdatedAtDesc(targetUserId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -67,17 +77,58 @@ public class ResumeService {
         Resume resume = getResumeAndVerifyOwnership(resumeId, currentUserId);
 
         resume.setTitle(request.getTitle());
+        if (request.getTemplate() != null) resume.setTemplate(request.getTemplate());
         resume.setPersonalInfo(request.getPersonalInfo());
         resume.setSummary(request.getSummary());
+        resume.setCareerObjective(request.getCareerObjective());
         resume.setEducation(request.getEducation() != null ? request.getEducation() : new ArrayList<>());
         resume.setExperience(request.getExperience() != null ? request.getExperience() : new ArrayList<>());
+        resume.setInternships(request.getInternships() != null ? request.getInternships() : new ArrayList<>());
         resume.setProjects(request.getProjects() != null ? request.getProjects() : new ArrayList<>());
         resume.setSkills(request.getSkills() != null ? request.getSkills() : new ArrayList<>());
+        resume.setTechnicalSkills(request.getTechnicalSkills() != null ? request.getTechnicalSkills() : new ArrayList<>());
+        resume.setCertifications(request.getCertifications() != null ? request.getCertifications() : new ArrayList<>());
+        resume.setAchievements(request.getAchievements() != null ? request.getAchievements() : new ArrayList<>());
+        resume.setLanguages(request.getLanguages() != null ? request.getLanguages() : new ArrayList<>());
+        resume.setHobbies(request.getHobbies() != null ? request.getHobbies() : new ArrayList<>());
+        resume.setCustomSections(request.getCustomSections() != null ? request.getCustomSections() : new ArrayList<>());
+        if (request.getStatus() != null) resume.setStatus(request.getStatus());
         resume.setUpdatedAt(Instant.now());
 
         Resume updatedResume = resumeRepository.save(resume);
         log.info("Resume {} updated by user {}", resumeId, currentUserId);
         return mapToResponse(updatedResume);
+    }
+
+    public ResumeResponse duplicateResume(String resumeId, String currentUserId) {
+        Resume original = getResumeAndVerifyOwnership(resumeId, currentUserId);
+
+        Resume duplicate = Resume.builder()
+                .userId(currentUserId)
+                .title(original.getTitle() + " (Copy)")
+                .template(original.getTemplate())
+                .personalInfo(original.getPersonalInfo())
+                .summary(original.getSummary())
+                .careerObjective(original.getCareerObjective())
+                .education(original.getEducation() != null ? new ArrayList<>(original.getEducation()) : new ArrayList<>())
+                .experience(original.getExperience() != null ? new ArrayList<>(original.getExperience()) : new ArrayList<>())
+                .internships(original.getInternships() != null ? new ArrayList<>(original.getInternships()) : new ArrayList<>())
+                .projects(original.getProjects() != null ? new ArrayList<>(original.getProjects()) : new ArrayList<>())
+                .skills(original.getSkills() != null ? new ArrayList<>(original.getSkills()) : new ArrayList<>())
+                .technicalSkills(original.getTechnicalSkills() != null ? new ArrayList<>(original.getTechnicalSkills()) : new ArrayList<>())
+                .certifications(original.getCertifications() != null ? new ArrayList<>(original.getCertifications()) : new ArrayList<>())
+                .achievements(original.getAchievements() != null ? new ArrayList<>(original.getAchievements()) : new ArrayList<>())
+                .languages(original.getLanguages() != null ? new ArrayList<>(original.getLanguages()) : new ArrayList<>())
+                .hobbies(original.getHobbies() != null ? new ArrayList<>(original.getHobbies()) : new ArrayList<>())
+                .customSections(original.getCustomSections() != null ? new ArrayList<>(original.getCustomSections()) : new ArrayList<>())
+                .status("ACTIVE")
+                .createdAt(Instant.now())
+                .updatedAt(Instant.now())
+                .build();
+
+        Resume saved = resumeRepository.save(duplicate);
+        log.info("Duplicated resume {} into new resume {}", resumeId, saved.getId());
+        return mapToResponse(saved);
     }
 
     public void deleteResume(String resumeId, String currentUserId) {
@@ -104,12 +155,22 @@ public class ResumeService {
                 .id(resume.getId())
                 .userId(resume.getUserId())
                 .title(resume.getTitle())
+                .template(resume.getTemplate() != null ? resume.getTemplate() : "modern")
                 .personalInfo(resume.getPersonalInfo())
                 .summary(resume.getSummary())
+                .careerObjective(resume.getCareerObjective())
                 .education(resume.getEducation())
                 .experience(resume.getExperience())
+                .internships(resume.getInternships())
                 .projects(resume.getProjects())
                 .skills(resume.getSkills())
+                .technicalSkills(resume.getTechnicalSkills())
+                .certifications(resume.getCertifications())
+                .achievements(resume.getAchievements())
+                .languages(resume.getLanguages())
+                .hobbies(resume.getHobbies())
+                .customSections(resume.getCustomSections())
+                .status(resume.getStatus())
                 .createdAt(resume.getCreatedAt())
                 .updatedAt(resume.getUpdatedAt())
                 .build();

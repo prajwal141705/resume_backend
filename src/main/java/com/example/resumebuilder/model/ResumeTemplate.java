@@ -11,35 +11,36 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "users")
-public class User {
+@Document(collection = "resume_templates")
+public class ResumeTemplate {
 
     @Id
     private String id;
 
+    @Indexed(unique = true)
+    private String slug; // modern, classic, professional, minimal, creative, developer, corporate, executive, ats-friendly, two-column
+
     private String name;
 
-    @Indexed(unique = true)
-    private String email;
-
-    private String passwordHash;
+    private String description;
 
     @Builder.Default
-    private Set<String> roles = new HashSet<>(Set.of("ROLE_USER"));
+    private String category = "Standard"; // Standard, Tech, Creative, Executive, ATS
 
     @Builder.Default
-    private String status = "ACTIVE"; // ACTIVE, INACTIVE, SUSPENDED
+    private boolean enabled = true;
 
-    private String phone;
+    private String previewUrl;
 
-    private String avatarUrl;
+    @Builder.Default
+    private boolean isCustom = false;
+
+    private String createdBy;
 
     @CreatedDate
     private Instant createdAt;

@@ -9,5 +9,8 @@ import java.util.List;
 @Repository
 public interface JobRepository extends MongoRepository<Job, String> {
     List<Job> findAllByOrderByPostedDateDesc();
+    List<Job> findByEnabledTrueOrderByPostedDateDesc();
     List<Job> findByTitleContainingIgnoreCaseOrCompanyContainingIgnoreCase(String title, String company);
+    List<Job> findByEnabledTrueAndTitleContainingIgnoreCaseOrEnabledTrueAndCompanyContainingIgnoreCase(String title, String company);
+    long countByEnabledTrue();
 }

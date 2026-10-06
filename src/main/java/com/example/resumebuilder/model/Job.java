@@ -33,11 +33,18 @@ public class Job {
     @Builder.Default
     private List<String> requiredSkills = new ArrayList<>();
 
+    @Builder.Default
+    private String experienceLevel = "Mid-Level"; // Entry-Level, Junior, Mid-Level, Senior, Lead
+
     private String location;
 
-    private String jobType;
+    @Builder.Default
+    private String jobType = "Full-time"; // Full-time, Part-time, Remote, Contract
 
     private String salaryRange;
+
+    @Builder.Default
+    private boolean enabled = true;
 
     private String createdBy;
 

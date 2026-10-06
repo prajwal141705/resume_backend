@@ -16,6 +16,10 @@ public class UserDto {
     private String id;
     private String name;
     private String email;
+    private String phone;
+    private String avatarUrl;
+    private String status;
     private Set<String> roles;
+    private long resumeCount;
     private Instant createdAt;
 }

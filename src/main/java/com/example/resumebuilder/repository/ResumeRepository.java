@@ -10,6 +10,9 @@ import java.util.Optional;
 @Repository
 public interface ResumeRepository extends MongoRepository<Resume, String> {
     List<Resume> findByUserId(String userId);
+    List<Resume> findByUserIdOrderByUpdatedAtDesc(String userId);
     Optional<Resume> findByIdAndUserId(String id, String userId);
     void deleteByIdAndUserId(String id, String userId);
+    long countByUserId(String userId);
+    List<Resume> findAllByOrderByUpdatedAtDesc();
 }

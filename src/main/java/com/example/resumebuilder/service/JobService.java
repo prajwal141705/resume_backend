@@ -30,9 +30,11 @@ public class JobService {
                 .company(request.getCompany())
                 .description(request.getDescription())
                 .requiredSkills(request.getRequiredSkills() != null ? request.getRequiredSkills() : new ArrayList<>())
-                .location(request.getLocation())
-                .jobType(request.getJobType())
+                .location(request.getLocation() != null ? request.getLocation() : "Remote")
+                .jobType(request.getJobType() != null ? request.getJobType() : "Full-time")
                 .salaryRange(request.getSalaryRange())
+                .experienceLevel("Mid-Level")
+                .enabled(true)
                 .createdBy(currentUserId)
                 .postedDate(Instant.now())
                 .updatedAt(Instant.now())
@@ -44,7 +46,17 @@ public class JobService {
     }
 
     public List<JobResponse> getAllJobs() {
-        return jobRepository.findAllByOrderByPostedDateDesc().stream()
+        return jobRepository.findByEnabledTrueOrderByPostedDateDesc().stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<JobResponse> searchJobs(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return getAllJobs();
+        }
+        return jobRepository.findByEnabledTrueAndTitleContainingIgnoreCaseOrEnabledTrueAndCompanyContainingIgnoreCase(keyword.trim(), keyword.trim())
+                .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }

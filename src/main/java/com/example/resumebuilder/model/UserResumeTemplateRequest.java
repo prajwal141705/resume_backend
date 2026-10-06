@@ -11,39 +11,40 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "users")
-public class User {
+@Document(collection = "user_template_requests")
+public class UserResumeTemplateRequest {
 
     @Id
     private String id;
 
-    private String name;
+    @Indexed
+    private String userId;
 
-    @Indexed(unique = true)
-    private String email;
+    private String userEmail;
 
-    private String passwordHash;
+    private String userName;
+
+    private String templateName;
+
+    private String description;
+
+    private String previewUrl;
 
     @Builder.Default
-    private Set<String> roles = new HashSet<>(Set.of("ROLE_USER"));
+    private String status = "PENDING"; // PENDING, APPROVED, REJECTED
 
-    @Builder.Default
-    private String status = "ACTIVE"; // ACTIVE, INACTIVE, SUSPENDED
+    private String adminFeedback;
 
-    private String phone;
-
-    private String avatarUrl;
+    private String reviewedBy;
 
     @CreatedDate
     private Instant createdAt;
 
     @LastModifiedDate
-    private Instant updatedAt;
+    private Instant reviewedAt;
 }

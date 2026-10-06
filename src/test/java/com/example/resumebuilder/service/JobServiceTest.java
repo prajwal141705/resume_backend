@@ -72,7 +72,7 @@ class JobServiceTest {
 
     @Test
     void getAllJobs_Success() {
-        when(jobRepository.findAllByOrderByPostedDateDesc()).thenReturn(List.of(sampleJob));
+        when(jobRepository.findByEnabledTrueOrderByPostedDateDesc()).thenReturn(List.of(sampleJob));
 
         List<JobResponse> jobs = jobService.getAllJobs();
 

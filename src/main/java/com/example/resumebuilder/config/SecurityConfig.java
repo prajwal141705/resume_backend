@@ -81,8 +81,16 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         // Public job endpoints (GET only)
                         .requestMatchers(HttpMethod.GET, "/api/jobs", "/api/jobs/**").permitAll()
+                        // Public template preview endpoints (GET only)
+                        .requestMatchers(HttpMethod.GET, "/api/templates", "/api/templates/**").permitAll()
                         // Health check endpoint
                         .requestMatchers("/api/health").permitAll()
+                        // Admin restricted endpoints
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        // Protected Upload Resume endpoints
+                        .requestMatchers("/api/upload-resume/**").authenticated()
+                        // Protected Template requests endpoints
+                        .requestMatchers("/api/templates/request", "/api/templates/my-requests").authenticated()
                         // Protected Resume endpoints
                         .requestMatchers("/api/resumes/**").authenticated()
                         // Protected Job modification endpoints

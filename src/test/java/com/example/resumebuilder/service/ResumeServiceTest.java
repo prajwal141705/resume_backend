@@ -79,7 +79,7 @@ class ResumeServiceTest {
 
     @Test
     void getResumesByUserId_Authorized_Success() {
-        when(resumeRepository.findByUserId("user123")).thenReturn(List.of(sampleResume));
+        when(resumeRepository.findByUserIdOrderByUpdatedAtDesc("user123")).thenReturn(List.of(sampleResume));
 
         List<ResumeResponse> results = resumeService.getResumesByUserId("user123", "user123");
 

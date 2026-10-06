@@ -72,6 +72,16 @@ public class ResumeController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/{resumeId}/duplicate")
+    public ResponseEntity<ResumeResponse> duplicateResume(
+            @PathVariable String resumeId,
+            @AuthenticationPrincipal UserPrincipal currentUser) {
+        String currentUserId = currentUser != null ? currentUser.getId() : authService.getCurrentUserId();
+        log.info("Duplicating resume: {} by user: {}", resumeId, currentUserId);
+        ResumeResponse response = resumeService.duplicateResume(resumeId, currentUserId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
     @DeleteMapping("/{resumeId}")
     public ResponseEntity<Void> deleteResume(
             @PathVariable String resumeId,

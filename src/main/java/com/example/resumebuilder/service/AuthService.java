@@ -9,6 +9,7 @@ import com.example.resumebuilder.model.dto.AuthResponse;
 import com.example.resumebuilder.model.dto.LoginRequest;
 import com.example.resumebuilder.model.dto.RegisterRequest;
 import com.example.resumebuilder.model.dto.UserDto;
+import com.example.resumebuilder.repository.ResumeRepository;
 import com.example.resumebuilder.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,7 @@ import java.util.Set;
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final ResumeRepository resumeRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider tokenProvider;
@@ -45,6 +47,7 @@ public class AuthService {
                 .email(normalizedEmail)
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .roles(Set.of("ROLE_USER"))
+                .status("ACTIVE")
                 .createdAt(Instant.now())
                 .updatedAt(Instant.now())
                 .build();
@@ -68,6 +71,14 @@ public class AuthService {
     public AuthResponse login(LoginRequest request) {
         String normalizedEmail = request.getEmail().trim().toLowerCase();
 
+        User user = userRepository.findByEmail(normalizedEmail)
+                .orElseThrow(() -> new BadRequestException("Invalid email or password"));
+
+        if ("INACTIVE".equalsIgnoreCase(user.getStatus()) || "SUSPENDED".equalsIgnoreCase(user.getStatus())) {
+            log.warn("Login blocked for deactivated account: {}", normalizedEmail);
+            throw new ForbiddenException("Your account has been deactivated. Please contact an administrator.");
+        }
+
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         normalizedEmail,
@@ -77,10 +88,6 @@ public class AuthService {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = tokenProvider.generateToken(authentication);
-
-        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
-        User user = userRepository.findById(principal.getId())
-                .orElseThrow(() -> new BadRequestException("User not found"));
 
         log.info("User logged in successfully: {}", user.getId());
 
@@ -100,16 +107,21 @@ public class AuthService {
         if (authentication.getPrincipal() instanceof UserPrincipal userPrincipal) {
             return userPrincipal.getId();
         }
-        
+
         throw new ForbiddenException("Invalid authentication principal");
     }
 
     public UserDto mapToDto(User user) {
+        long count = resumeRepository.countByUserId(user.getId());
         return UserDto.builder()
                 .id(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())
+                .phone(user.getPhone())
+                .avatarUrl(user.getAvatarUrl())
+                .status(user.getStatus() != null ? user.getStatus() : "ACTIVE")
                 .roles(user.getRoles())
+                .resumeCount(count)
                 .createdAt(user.getCreatedAt())
                 .build();
     }

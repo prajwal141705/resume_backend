@@ -7,6 +7,7 @@ import com.example.resumebuilder.model.User;
 import com.example.resumebuilder.model.dto.AuthResponse;
 import com.example.resumebuilder.model.dto.LoginRequest;
 import com.example.resumebuilder.model.dto.RegisterRequest;
+import com.example.resumebuilder.repository.ResumeRepository;
 import com.example.resumebuilder.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,6 +41,9 @@ class AuthServiceTest {
     private UserRepository userRepository;
 
     @Mock
+    private ResumeRepository resumeRepository;
+
+    @Mock
     private PasswordEncoder passwordEncoder;
 
     @Mock
@@ -61,6 +65,7 @@ class AuthServiceTest {
                 .email("john@example.com")
                 .passwordHash("encodedPassword")
                 .roles(Set.of("ROLE_USER"))
+                .status("ACTIVE")
                 .createdAt(Instant.now())
                 .updatedAt(Instant.now())
                 .build();
@@ -79,6 +84,7 @@ class AuthServiceTest {
         when(userRepository.save(any(User.class))).thenReturn(sampleUser);
         when(tokenProvider.generateTokenFromUserIdAndEmail(anyString(), anyString(), anyString()))
                 .thenReturn("mocked.jwt.token");
+        when(resumeRepository.countByUserId("user123")).thenReturn(0L);
 
         AuthResponse response = authService.register(request);
 
@@ -114,10 +120,11 @@ class AuthServiceTest {
         UserPrincipal principal = UserPrincipal.create(sampleUser);
         Authentication authentication = new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
 
+        when(userRepository.findByEmail("john@example.com")).thenReturn(Optional.of(sampleUser));
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenReturn(authentication);
         when(tokenProvider.generateToken(authentication)).thenReturn("mocked.jwt.token");
-        when(userRepository.findById("user123")).thenReturn(Optional.of(sampleUser));
+        when(resumeRepository.countByUserId("user123")).thenReturn(0L);
 
         AuthResponse response = authService.login(request);
 
@@ -133,6 +140,7 @@ class AuthServiceTest {
                 .password("wrongpassword")
                 .build();
 
+        when(userRepository.findByEmail("john@example.com")).thenReturn(Optional.of(sampleUser));
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenThrow(new BadCredentialsException("Bad credentials"));
 
