@@ -40,8 +40,6 @@ public class AuthController {
 
     @GetMapping("/me")
     public ResponseEntity<UserDto> getCurrentUser() {
-        String currentUserId = authService.getCurrentUserId();
-        // Return current user details
-        return ResponseEntity.ok(UserDto.builder().id(currentUserId).build());
+        return ResponseEntity.ok(authService.getCurrentUserDto());
     }
 }

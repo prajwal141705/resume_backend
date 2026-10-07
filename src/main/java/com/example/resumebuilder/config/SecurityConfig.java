@@ -92,7 +92,7 @@ public class SecurityConfig {
                         // Protected Template requests endpoints
                         .requestMatchers("/api/templates/request", "/api/templates/my-requests").authenticated()
                         // Protected Resume endpoints
-                        .requestMatchers("/api/resumes/**").authenticated()
+                        .requestMatchers("/api/resumes", "/api/resumes/**").authenticated()
                         // Protected Job modification endpoints
                         .requestMatchers(HttpMethod.POST, "/api/jobs/**").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/jobs/**").authenticated()

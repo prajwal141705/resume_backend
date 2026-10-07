@@ -111,6 +111,13 @@ public class AuthService {
         throw new ForbiddenException("Invalid authentication principal");
     }
 
+    public UserDto getCurrentUserDto() {
+        String currentUserId = getCurrentUserId();
+        User user = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new com.example.resumebuilder.exception.ResourceNotFoundException("User not found with id: " + currentUserId));
+        return mapToDto(user);
+    }
+
     public UserDto mapToDto(User user) {
         long count = resumeRepository.countByUserId(user.getId());
         return UserDto.builder()

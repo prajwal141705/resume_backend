@@ -41,6 +41,15 @@ public class ResumeController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @GetMapping
+    public ResponseEntity<List<ResumeResponse>> getCurrentUserResumes(
+            @AuthenticationPrincipal UserPrincipal currentUser) {
+        String currentUserId = currentUser != null ? currentUser.getId() : authService.getCurrentUserId();
+        log.info("Fetching all resumes for current user: {}", currentUserId);
+        List<ResumeResponse> resumes = resumeService.getResumesByUserId(currentUserId, currentUserId);
+        return ResponseEntity.ok(resumes);
+    }
+
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<ResumeResponse>> getResumesByUserId(
             @PathVariable String userId,

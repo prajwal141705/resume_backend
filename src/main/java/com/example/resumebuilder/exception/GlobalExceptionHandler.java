@@ -140,6 +140,20 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.SERVICE_UNAVAILABLE);
     }
 
+    @ExceptionHandler(org.springframework.web.HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleMethodNotSupportedException(
+            org.springframework.web.HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
+        log.warn("Method not supported for path: {} - {}", request.getRequestURI(), ex.getMessage());
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(Instant.now())
+                .status(HttpStatus.METHOD_NOT_ALLOWED.value())
+                .error(HttpStatus.METHOD_NOT_ALLOWED.getReasonPhrase())
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
+        return new ResponseEntity<>(errorResponse, HttpStatus.METHOD_NOT_ALLOWED);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(
             Exception ex, HttpServletRequest request) {
