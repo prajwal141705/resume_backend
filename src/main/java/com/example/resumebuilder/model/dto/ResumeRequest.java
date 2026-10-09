@@ -68,6 +68,26 @@ public class ResumeRequest {
     @Builder.Default
     private List<CustomSection> customSections = new ArrayList<>();
 
+    // Customization Settings
+    @Builder.Default
+    private String accentColor = "#4f46e5";
+    @Builder.Default
+    private String fontFamily = "Inter, sans-serif";
+    @Builder.Default
+    private String fontSize = "medium";
+    @Builder.Default
+    private String spacing = "normal";
+    @Builder.Default
+    private String margins = "normal";
+    @Builder.Default
+    private String layout = "one-column";
+
+    @Builder.Default
+    private List<String> sectionOrder = new ArrayList<>();
+
+    @Builder.Default
+    private int atsScore = 0;
+
     @Builder.Default
     private String status = "ACTIVE";
 }
